@@ -1,12 +1,20 @@
 import math
+import time
+import random
 class car:
     v = 10
-    Pf = 0.6
-    Pl = 0.2
-    Pr = 0.2
     def __init__(self,x,y):
         self.x = x
         self.y = y
+        # car's direction up:0,down:1,left:2,right:3
+        if y == 0: # go up
+            self.dir = 0 
+        elif y == 1000: # go down
+            self.dir = 1
+        elif x == 1000:# go left
+            self.dir = 2
+        else: # go right
+            self.dir = 3
 class base:
     power = 100
     def __init__(self,x,y):
@@ -39,5 +47,31 @@ bases.append(base(360,680)) # base 2
 bases.append(base(660,658)) # base 3
 handoff = []
 # grid = [[0]*10]*10
-
-### policy:Best
+### policy 1 :Best Strength  with lmd = 0.5
+for k in range(86400):
+    random.seed((int)(time.time()))
+    # move car
+    print(k)
+    for i in range(len(cars)):
+        moveProb =  random.random()
+        # print(moveProb)
+        if moveProb <= 0.6: # forward
+            pass
+        elif moveProb <= 0.8: # left
+            pass
+        else:
+            pass
+    # deq if car is at out port
+    for i in range(len(cars)-1,-1,-1):
+        if cars[i].x == 0 or cars[i].x == 1000 or cars[i].y == 0 or cars[i].y == 1000:
+            cars.remove(cars[i])
+        # TODO calculate receive Gain
+        # TODO count handoff
+    # add cars from entry  
+    for _ in range(1000):
+        prob = random.random()
+        if prob < lmd[0]:
+            pos = random.randint(0,len(entry)-1)
+            cars.append(car(entry[pos][0],entry[pos][1]))
+print(cars)
+print(handoff)

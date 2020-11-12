@@ -15,6 +15,7 @@ class car:
             self.dir = 2
         else: # go right
             self.dir = 3
+    # TODO 1st base
 class base:
     power = 100
     def __init__(self,x,y):
@@ -22,8 +23,26 @@ class base:
         self.y = y
 
 
-def receiveGain(D):
-    return 32.45+20*math.log10(D)
+def receiveGain(car,pos):
+    return 32.45+20*math.log10(pos)
+def checkhandoff(car,bases):
+    now_base = car.base
+    G_0 = receiveGain(car,bases[0])
+    G_1 = receiveGain(car,bases[1])
+    G_2 = receiveGain(car,bases[2])
+    G_3 = receiveGain(car,bases[3])
+    most_Pr = max(G_0,G_1,G_2,G_3)
+    if most_Pr ==  G_0:
+        car.base = 0
+    elif most_Pr == G_1:
+        car.base = 1
+    elif most_Pr == G_2:
+        car.base = 2
+    elif most_Pr == G_3:
+        car.base = 3
+    if now_base != car.base:
+        return 1
+    else:return 0
 # set env
 entry = []
 for i in range(100,1000,100):
@@ -45,7 +64,7 @@ bases.append(base(330,350)) # base 0
 bases.append(base(640,310)) # base 1
 bases.append(base(360,680)) # base 2
 bases.append(base(660,658)) # base 3
-handoff = []
+handoff = 0
 # grid = [[0]*10]*10
 ### policy 1 :Best Strength  with lmd = 0.5
 for k in range(86400):

@@ -4,7 +4,7 @@ This is a project from ncku wireless class.
 ## Env
 * Env:`windows 10 home`
 * compiler:`VSCode`
-* Language:`python 3.8.2`
+* Language:`gcc 9.2.0`
 
 ## Purpose
 Use program to simulate handoff policy

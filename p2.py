@@ -1,6 +1,7 @@
 import math
 import time
 import random
+import matplotlib.pyplot as plt
 class car:
     v = 10
     def __init__(self,x,y):
@@ -15,7 +16,22 @@ class car:
             self.dir = 2
         else: # go right
             self.dir = 3
-    # TODO 1st base
+    # 1st base
+    def set_first_base(self,base):
+        self.base = base
+    # move
+    def move(self,dir):
+        if x%100==0 and y%100==0:
+            moveProb =  random.random()
+            if moveProb <= 0.6: # forward
+                self.dir = self.dir
+            elif moveProb <= 0.8: # left
+                self.dir = self.dir
+            else:
+                self.dir = self.dir
+        else:
+            pass
+
 class base:
     power = 100
     def __init__(self,x,y):
@@ -23,8 +39,11 @@ class base:
         self.y = y
 
 
-def receiveGain(car,pos):
-    return 32.45+20*math.log10(pos)
+def receiveGain(car,base):
+    r_x = (car.x-base.x)*(car.x-base.x)
+    r_y = (car.y-base.y)*(car.y-base.y)
+    D = math.sqrt(r_x+r_y)
+    return 100 - (32.45+20*math.log10(D))
 def checkhandoff(car,bases):
     now_base = car.base
     G_0 = receiveGain(car,bases[0])
@@ -64,22 +83,14 @@ bases.append(base(330,350)) # base 0
 bases.append(base(640,310)) # base 1
 bases.append(base(360,680)) # base 2
 bases.append(base(660,658)) # base 3
-handoff = 0
+handoff = [] # every ms 's handoff
 # grid = [[0]*10]*10
 ### policy 1 :Best Strength  with lmd = 0.5
 for k in range(86400):
     random.seed((int)(time.time()))
     # move car
-    print(k)
     for i in range(len(cars)):
-        moveProb =  random.random()
-        # print(moveProb)
-        if moveProb <= 0.6: # forward
-            pass
-        elif moveProb <= 0.8: # left
-            pass
-        else:
-            pass
+        pass
     # deq if car is at out port
     for i in range(len(cars)-1,-1,-1):
         if cars[i].x == 0 or cars[i].x == 1000 or cars[i].y == 0 or cars[i].y == 1000:
@@ -92,5 +103,3 @@ for k in range(86400):
         if prob < lmd[0]:
             pos = random.randint(0,len(entry)-1)
             cars.append(car(entry[pos][0],entry[pos][1]))
-print(cars)
-print(handoff)

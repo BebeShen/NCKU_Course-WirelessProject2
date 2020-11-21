@@ -7,14 +7,14 @@ class car:
     def __init__(self,x,y):
         self.x = x
         self.y = y
-        # car's direction up:0,down:1,left:2,right:3
+        # car's direction up:0,right:1,down:2,left:3
         if y == 0: # go up
             self.dir = 0 
-        elif y == 1000: # go down
+        elif x == 0: # go right
             self.dir = 1
-        elif x == 1000:# go left
+        elif y == 1000:# go down
             self.dir = 2
-        else: # go right
+        elif x == 1000: # go left
             self.dir = 3
     # 1st base
     def set_first_base(self,base):
@@ -25,12 +25,13 @@ class car:
             moveProb =  random.random()
             if moveProb <= 0.6: # forward
                 self.dir = self.dir
-            elif moveProb <= 0.8: # left
-                self.dir = self.dir
+            elif moveProb <= 0.8: # turn left
+                self.dir = self.dir + 1
             else:
-                self.dir = self.dir
-        else:
-            pass
+                self.dir = self.dir - 1
+            if(self.dir > 3):self.dir = 0
+            if(self.dir < 0):self.dir = 3
+        
 
 class base:
     power = 100
@@ -90,7 +91,7 @@ for k in range(86400):
     random.seed((int)(time.time()))
     # move car
     for i in range(len(cars)):
-        pass
+        cars[i].move()
     # deq if car is at out port
     for i in range(len(cars)-1,-1,-1):
         if cars[i].x == 0 or cars[i].x == 1000 or cars[i].y == 0 or cars[i].y == 1000:

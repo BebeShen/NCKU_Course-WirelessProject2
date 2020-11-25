@@ -19,6 +19,10 @@ every car has velocity 10 m per s , and once it reach a intersection , it has 0.
 
 and 4 base station with power = 100 .
 
+## Run
+- compile：`g++ p2.cpp -O3 -o p2.exe`
+- run：`./p2.exe`
+
 ## TODO
 1. Policy implement
 2. Record handoff

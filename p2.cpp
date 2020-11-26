@@ -80,20 +80,6 @@ int car::init_base(){
     return find_max(d);
 }
 void car::move(){
-    srand (time(NULL));
-    if(x%100 == 0 && y%100==0){
-        double prob = (double)rand() / RAND_MAX;
-        if(prob<=0.6){  // toward
-            direction = direction;
-        }
-        else if(prob<=0.8){
-            ++direction;    // turn right
-        }else{
-            --direction;    // turn left
-        }
-        if(direction<0)direction=3; // up(0) turn left(-1) = left(3)
-        if(direction>3)direction=0; // left(3) turn right(+1) = up(0) 
-    }
     switch (direction)
     {
         case 0: // move up
@@ -111,11 +97,27 @@ void car::move(){
         default:
             break;
     }
+    // Reorder for prevent turn at init
+    if(x%100 == 0 && y%100 == 0){
+        double prob = (double)rand() / RAND_MAX;
+        if(prob<=0.6){  // toward
+            direction = direction;
+        }
+        else if(prob<=0.8){
+            ++direction;    // turn right
+        }else{
+            --direction;    // turn left
+        }
+        if(direction<0)direction=3; // up(0) turn left(-1) = left(3)
+        if(direction>3)direction=0; // left(3) turn right(+1) = up(0) 
+    }
 }
 
 double lambda[3] = {1.0/2.0,1.0/3.0,1.0/5.0};
 
 int main(){
+    // // output to file for image
+    // fstream outFile("data.txt",ios::out);
     // initialize entry
     vector<pos>entry;
     entry.resize(36);
@@ -138,34 +140,34 @@ int main(){
     bases[3].x = 660.0;    bases[3].y = 658.0;
     // Do Policy
     int handoff[86400] = {0};
-    for(int i=0;i<1;++i){
+    for(int i=0;i<1;++i){   // lambda
         // reset handoff to 0
         memset(handoff,0,sizeof(handoff));
         vector<car>cars;
         int num_car = 0, maxG;    // record the number of cars in maze
         double G[4]; // store receive Gain of car with base
-        cout<<"++++++++++++++++++++++++++\nlambda:"<<lambda[i]<<"\n";
-        for(int j=0;j<100;++j){
-            cout<<"Second:"<<j<<"\n";
-            // cars' move
-            for(int k=0;k<num_car;++k){
-                cars[k].move();
-            }
+        // cout<<"++++++++++++++++++++++++++\nlambda:"<<lambda[i]<<"\n";
+        srand (time(NULL));
+        for(int j=0;j<500;++j){ // second(86400)
+            if(j%1000==0)cout<<"Second:"<<j<<"\n";
             // remove cars that arrive out port
             // Bug here: index out of range by erase
             int num_remove = 0;
             for(int k=num_car-1;k>=0;--k){
                 if(cars.at(k).x == 0 || cars.at(k).y == 0 || cars.at(k).x == 1000 || cars.at(k).y == 1000){
-                    cout<<cars.at(k).x<<" "<<cars.at(k).y<<"pop car!\n";
                     num_car--;
                     num_remove++;
                     cars.erase(cars.begin()+k);
                 }
             }
-            cout<<"number of cars :"<<num_car<<"\n";
+            // cars' move
+            for(int k=0;k<num_car;++k){
+                cars.at(k).move();
+            }
+            // cout<<"number of cars :"<<num_car<<"\ncar's size:"<<cars.size()<<"\n";
             // Calculate receive Gain
             // size change with cars , but capacity remain the memory , so capacity must greater or equal than size 
-            for(int k=0;k<cars.size();--k){
+            for(int k=0;k<cars.size();++k){
                 G[0] = calGain(bases.at(0),cars.at(k));
                 G[1] = calGain(bases.at(1),cars.at(k));
                 G[2] = calGain(bases.at(2),cars.at(k));
@@ -173,21 +175,21 @@ int main(){
                 maxG = find_max(G);
                 // Best Policy
                 if(cars.at(k).base != maxG){
+                    // cout<<cars.at(k).base<<" "<<maxG<<"\n";
                     handoff[j]++;
                     cars.at(k).base = maxG;
                 }
             }
             // generate cars
-            srand (time(NULL));
             int numberGeneratedCar = 0;
-            for(int k=0;k<1000;++k){
+            for(int k=0;k<1000;++k){    // 1000 ms = 1 s
                 double prob = (double)rand() / RAND_MAX; // 0~1
                 if(prob<=lambda[i]){
                     ++numberGeneratedCar;
                     ++num_car;
                 }
             }
-            cout<<numberGeneratedCar<<" "<<num_car<<" "<<cars.size()<<endl;
+            cout<<"number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
             if(num_car>cars.size()){
                 cars.reserve(num_car);
             }
@@ -198,11 +200,8 @@ int main(){
                 // cout<<"generate car:"<<tmp.x<<" "<<tmp.y<<"\n";
                 cars.push_back(tmp);
             }
+            cout<<"After ,number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
         }
-        for(int z=0;z<100;++z)
-            if(handoff[z]!=0)
-                cout<<z<<" "<<handoff[z]<<" ";
-        cout<<"\n++++++++++++++++++++++++++\n\n";
         cars.clear();
     }
     return 0;

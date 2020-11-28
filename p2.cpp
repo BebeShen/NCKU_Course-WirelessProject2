@@ -16,6 +16,8 @@
 #include<algorithm>
 using namespace std;
 #define SystemTime 86400
+#define SysUnitTime 0.1
+// #define SysUnitTime 0.05
 class car
 {
     public:
@@ -113,11 +115,15 @@ void car::move(){
     }
 }
 
-double lambda[3] = {1.0/2.0,1.0/3.0,1.0/5.0};
+double lambda[3];
 
 int main(){
     // // output to file for image
-    // fstream outFile("data.txt",ios::out);
+    fstream outFile("data.csv",ios::out);
+    // initailize lambda
+    lambda[0] = 1.0-exp(-(1.0/2.0)*SysUnitTime);
+    lambda[1] = 1.0-exp(-(1.0/3.0)*SysUnitTime);
+    lambda[2] = 1.0-exp(-(1.0/5.0)*SysUnitTime);
     // initialize entry
     vector<pos>entry;
     entry.resize(36);
@@ -140,7 +146,7 @@ int main(){
     bases[3].x = 660.0;    bases[3].y = 658.0;
     // Do Policy
     int handoff[86400] = {0};
-    for(int i=0;i<1;++i){   // lambda
+    for(int i=0;i<3;++i){   // lambda
         // reset handoff to 0
         memset(handoff,0,sizeof(handoff));
         vector<car>cars;
@@ -148,21 +154,26 @@ int main(){
         double G[4]; // store receive Gain of car with base
         // cout<<"++++++++++++++++++++++++++\nlambda:"<<lambda[i]<<"\n";
         srand (time(NULL));
-        for(int j=0;j<500;++j){ // second(86400)
+        for(int j=0;j<SystemTime;++j){ // second(86400)
             if(j%1000==0)cout<<"Second:"<<j<<"\n";
             // remove cars that arrive out port
             // Bug here: index out of range by erase
             int num_remove = 0;
+            // if(j>90)cout<<"number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
             for(int k=num_car-1;k>=0;--k){
                 if(cars.at(k).x == 0 || cars.at(k).y == 0 || cars.at(k).x == 1000 || cars.at(k).y == 1000){
+                    // cout<<k<<" "<<cars.at(k).x<<" , "<<cars.at(k).y<<"\n";
                     num_car--;
                     num_remove++;
                     cars.erase(cars.begin()+k);
                 }
             }
+            // if(j>90)cout<<"After number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
             // cars' move
             for(int k=0;k<num_car;++k){
+                // cout<<k<<" "<<cars.at(k).x<<" , "<<cars.at(k).y<<"\n";
                 cars.at(k).move();
+                // cout<<k<<" "<<cars.at(k).x<<" , "<<cars.at(k).y<<"\n";
             }
             // cout<<"number of cars :"<<num_car<<"\ncar's size:"<<cars.size()<<"\n";
             // Calculate receive Gain
@@ -189,7 +200,8 @@ int main(){
                     ++num_car;
                 }
             }
-            cout<<"number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
+            // cout<<numberGeneratedCar<<endl;
+            // if(j%100==0)cout<<"number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
             if(num_car>cars.size()){
                 cars.reserve(num_car);
             }
@@ -197,12 +209,17 @@ int main(){
                 // Generate rand formula：int x = rand() % (max - min + 1) + min, min <= x <= max;
                 int entrypoint = rand()%(35 - 0 + 1) + 0;
                 car tmp(entry[entrypoint].x,entry[entrypoint].y);
-                // cout<<"generate car:"<<tmp.x<<" "<<tmp.y<<"\n";
+                tmp.move();
                 cars.push_back(tmp);
             }
-            cout<<"After ,number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
+            if(j%1000==0)cout<<"number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
         }
+        for(int k=0;k<SystemTime-1;++k){
+            outFile<<handoff[k]<<",";
+        }outFile<<handoff[SystemTime-1]<<"\n";
         cars.clear();
+        // for(int i=0;i<SystemTime;i+=rand()%(500 - 100 + 1) + 100)cout<<handoff[i]<<" ";
     }
+    outFile.close();
     return 0;
 }

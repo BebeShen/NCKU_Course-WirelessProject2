@@ -28,13 +28,13 @@ with open('data.csv', newline='') as csvfile:
         plt.plot(x,handoff,colors[int(i/3)])
         ax = plt.gca()
         if i < 3:  
-            ax.set_title('BestPolicy Handoff per Second')
+            ax.set_title('BestPolicy Handoff per Hour')
         elif i < 6: 
-            ax.set_title('Threshold Handoff per Second')
+            ax.set_title('Threshold Handoff per Hour')
         elif i < 9: 
-            ax.set_title('Entropy Handoff per Second')
+            ax.set_title('Entropy Handoff per Hour')
         elif i < 12: 
-            ax.set_title('MyPolicy Handoff per Second')
+            ax.set_title('MyPolicy Handoff per Hour')
         
         ax.set_xlabel('Hour')
         ax.set_ylabel('Handoff')

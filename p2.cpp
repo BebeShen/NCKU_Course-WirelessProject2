@@ -146,7 +146,7 @@ int main(){
     char powerfilepath[] = "M_at_15_60.txt";
     double T = 7.4;
     double E = 17.65;
-    double M = 15.60;
+    double M = 23.5;
     // output to file for image
     fstream outFile;
     // fstream powerFile;

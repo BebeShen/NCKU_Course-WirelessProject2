@@ -4,7 +4,7 @@ This is a project from ncku wireless class.
 ## Env
 * Env:`windows 10 home`
 * compiler:`VSCode`
-* Language:`gcc 9.2.0`
+* Language:`gcc 8.1.0`
 
 ## Purpose
 Use program to simulate handoff policy
@@ -22,9 +22,3 @@ and 4 base station with power = 100 .
 ## Run
 - compile：`g++ p2.cpp -O3 -o p2.exe`
 - run：`./p2.exe`
-
-## TODO
-1. Policy implement
-2. Record handoff
-3. find best E and T
-4. My own policy

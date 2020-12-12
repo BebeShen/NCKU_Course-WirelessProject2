@@ -15,7 +15,7 @@
 #include<cstring>
 #include<algorithm>
 using namespace std;
-#define SystemTime 86400
+#define SystemTime 2000
 // #define SysUnitTime 0.1
 #define SysUnitTime 0.04
 class car
@@ -143,24 +143,24 @@ int main(){
     bases[2].x = 360.0;    bases[2].y = 680.0;
     bases[3].x = 660.0;    bases[3].y = 658.0;
     // Do Policy
-    char powerfilepath[] = "M_at_15_60.txt";
-    double T = 7.4;
-    double E = 17.65;
+    char powerfilepath[] = "Demo.txt";
+    double T = 15.00;
+    double E = 13.50;
     double M = 23.5;
     // output to file for image
-    fstream outFile;
-    // fstream powerFile;
-    char outputfilepath[] = "data.csv";
-    outFile.open(outputfilepath,ios::out);
-    for(int p=0;p<4;++p){
+    // fstream outFile;
+    fstream powerFile;
+    // char outputfilepath[] = "data.csv";
+    // outFile.open(outputfilepath,ios::out);
+    for(int p=1;p<2;++p){
         // powerfilepath[5] = p + '0';
-        // powerFile.open(powerfilepath,ios::out);
+        powerFile.open(powerfilepath,ios::out);
         int handoff[86400] = {0};
         int Power[86400] = {0};
         int num_cars_total = 0;
         double car_power_sec = 0.0;
         double car_power_total = 0.0;
-        for(int i=0;i<3;++i){   // lambda
+        for(int i=0;i<1;++i){   // lambda
             // reset handoff to 0
             num_cars_total = 0;
             car_power_total = 0.0;
@@ -171,7 +171,7 @@ int main(){
             srand (time(NULL));
             for(int j=0;j<SystemTime;++j){ // second(86400)
                 car_power_sec = 0.0;
-                if(j%10000==0)cout<<j<<"Second"<<"\n";
+                if(j%1000==0)cout<<j<<"Second"<<"\n";
                 // remove cars that arrive out port
                 int num_remove = 0;
                 for(int k=num_car-1;k>=0;--k){
@@ -198,17 +198,17 @@ int main(){
                         handoff[j]++;
                         cars.at(k).base = maxG;
                     }
-                    else if (p == 1 && cars.at(k).base != maxG && G[maxG] > G[cars.at(k).base]+T){
-                        // Threshold Policy
-                        handoff[j]++;
-                        cars.at(k).base = maxG;
-                    }
-                    else if(p == 2 && cars.at(k).base != maxG && G[cars.at(k).base]<E){
+                    else if (p == 1 && cars.at(k).base != maxG && G[maxG] > G[cars.at(k).base]+E){
                         // Entropy Policy
                         handoff[j]++;
                         cars.at(k).base = maxG;
                     }
-                    else if(p == 3 && cars.at(k).base != maxG && (G[maxG]>M && G[cars.at(k).base]<E)){
+                    else if(p == 2 && cars.at(k).base != maxG && G[cars.at(k).base]<T){
+                        // Threshold Policy
+                        handoff[j]++;
+                        cars.at(k).base = maxG;
+                    }
+                    else if(p == 3 && cars.at(k).base != maxG && (G[maxG]>M && G[cars.at(k).base]<T)){
                         // My Policy: Next Power Gain larger than M
                         handoff[j]++;
                         cars.at(k).base = maxG;
@@ -239,24 +239,29 @@ int main(){
                 car_power_total += car_power_sec;
                 // if(j%2000==0)cout<<"number of cars :"<<num_car<<",car's size:"<<cars.size()<<"\n";
             }
-            for(int k=0;k<SystemTime-1;++k){
-                outFile<<handoff[k]<<",";
-            }outFile<<handoff[SystemTime-1]<<"\n";
+            // for(int k=0;k<SystemTime-1;++k){
+            //     outFile<<handoff[k]<<",";
+            // }outFile<<handoff[SystemTime-1]<<"\n";
             // find T & E & M
-            // if(p==3){
-            //     powerFile<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-            //     powerFile<<"Cars' Power in total:"<<car_power_total<<"\n";
-            //     powerFile<<"Number of cars in a day:"<<num_cars_total<<"\n";
-            //     powerFile<<"------------------------------------------------------\n";
-            //     for(int k=0;k<SystemTime-1;k+=rand()%(1000 - 500 + 1))powerFile<<handoff[k]<<" ";
-            //     powerFile<<"\n------------------------------------------------------\n";
-            //     powerFile<<"(T = "<<E<<")'s mean Power at lambda["<<i<<"] = Pmin:"<<car_power_total/num_cars_total<<"\n";
-            //     powerFile<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-            // }
+            int handoff_total = 0;
+            for(int k=0;k<2000;k++){
+                handoff_total += handoff[k];
+            }
+            if(p==1){
+                powerFile<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+                powerFile<<"Cars' Power in total:"<<car_power_total<<"\n";
+                powerFile<<"Number of cars in a 2000s:"<<num_cars_total<<"\n";
+                powerFile<<"Number of handoff in a 2000s:"<<handoff_total<<"\n";
+                //powerFile<<"------------------------------------------------------\n";
+                //for(int k=0;k<SystemTime-1;k+=rand()%(1000 - 500 + 1))powerFile<<handoff[k]<<" ";
+                powerFile<<"\n------------------------------------------------------\n";
+                powerFile<<"(E = "<<E<<")'s mean Power at lambda["<<i<<"] = Pmin:"<<car_power_total/num_cars_total<<"\n";
+                powerFile<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+            }
             cars.clear();
         }
-        // powerFile.close();
+        powerFile.close();
     }
-    outFile.close();
+    // outFile.close();
     return 0;
 }
